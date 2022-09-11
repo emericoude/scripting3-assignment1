@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0545d572787acd4449d66d04f8f5282c, type: 3}
+  m_Name: Default Movement Component
+  m_EditorClassIdentifier: 
+  _sphereCastRadiusModifier: 1
+  _sphereCastLength: 0.1
+  _sphereCastOffset: {x: 0, y: 0, z: 0}
+  _layersToHit:
+    serializedVersion: 2
+    m_Bits: 2147483647
+  OnLandEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnExitGroundEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  _gravityPullPerSecond: 50
+  _terminalVelocity: -150
+  _moveSpeedModifier: 1
+  _airSpeedModifier: 0.7
