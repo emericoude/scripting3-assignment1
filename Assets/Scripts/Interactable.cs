@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 public abstract class Interactable : MonoBehaviour
@@ -55,7 +56,7 @@ public abstract class Interactable : MonoBehaviour
     protected abstract bool IsInteractable();
 
     ///<summary>Handles a hold interaction's progress. This also triggers the interaction progress to display.</summary>
-    public void AddProgress()
+    public void AddProgress(TopDownController user)
     {
         if (IsInteractable())
         {
@@ -71,7 +72,7 @@ public abstract class Interactable : MonoBehaviour
 
             if (_currentProgress >= _holdTimeInSeconds)
             {
-                Use();
+                Use(user);
                 if (_useSound.Length > 0)
                 {
                     //AudioManager.Instance.PlayEffect(_useSound[UnityEngine.Random.Range(0, _useSound.Length)]);
@@ -93,7 +94,7 @@ public abstract class Interactable : MonoBehaviour
             _currentProgress = 0;
             //Events.OnHoldProgress?.Invoke(_currentProgress);
 
-            if (( _progressSound.Length > 0 ) && ( _audioSource.isPlaying ))
+            if (( _progressSound.Length > 0 ) && _audioSource.isPlaying)
             {
                 _audioSource.Stop();
             }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
 /// <summary>
@@ -36,7 +37,7 @@ public class TopDownController : MonoBehaviour
     [Tooltip("The position at which items are held.")]
     [SerializeField] private Transform _heldItemPosition;
     [SerializeField] private PlayerTool _equippedTool;
-    private GameObject _heldItem;
+    private readonly GameObject _heldItem;
     private Interactable _currentInteractable;
 
     [Header("Debug")]
@@ -47,14 +48,11 @@ public class TopDownController : MonoBehaviour
 
     private void Awake()
     {
-        if (_mainCamera is null)
-            _mainCamera = Camera.main;
+        _mainCamera ??= Camera.main;
 
-        if (_rb is null)
-            _rb = GetComponent<Rigidbody>();
+        _rb ??= GetComponent<Rigidbody>();
 
-        if (_mainCollider is null)
-            _mainCollider = GetComponent<Collider>();
+        _mainCollider ??= GetComponent<Collider>();
 
         _inputs = new PlayerInputs();
         _inputs.Enable();
@@ -91,7 +89,7 @@ public class TopDownController : MonoBehaviour
         if (inputDirection == Vector2.zero)
             return Vector3.zero;
 
-        float targetMoveAngle = Mathf.Atan2(inputDirection.x, inputDirection.y) * Mathf.Rad2Deg + _mainCamera.transform.eulerAngles.y;
+        float targetMoveAngle = ( Mathf.Atan2(inputDirection.x, inputDirection.y) * Mathf.Rad2Deg ) + _mainCamera.transform.eulerAngles.y;
         if (_moveComponent.IsGrounded(out RaycastHit hit, _mainCollider))
         {
             Vector3 moveDirectionRight = Quaternion.Euler(0f, targetMoveAngle, 0f) * Vector3.right;
@@ -107,7 +105,7 @@ public class TopDownController : MonoBehaviour
     {
         Vector2 playerPositionToScreen = _mainCamera.WorldToScreenPoint(transform.position);
         Vector2 aimDirection = ( _inputs.Player.Aim.ReadValue<Vector2>() - playerPositionToScreen ).normalized;
-        return Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg - _mainCamera.transform.eulerAngles.y;
+        return ( Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg ) - _mainCamera.transform.eulerAngles.y;
     }
 
     #endregion
@@ -121,7 +119,7 @@ public class TopDownController : MonoBehaviour
         {
 
             //Check if the layer is the interaction layer
-            if (_interactionLayer == ( _interactionLayer | 1 << hit.transform.gameObject.layer ))
+            if (_interactionLayer == ( _interactionLayer | ( 1 << hit.transform.gameObject.layer ) ))
             {
 
                 //Try to get the interactable component
@@ -138,7 +136,7 @@ public class TopDownController : MonoBehaviour
                     {
                         if (_inputs.Player.Interact.inProgress)
                         {
-                            interactable.AddProgress();
+                            interactable.AddProgress(this);
                         }
                         else if (_inputs.Player.Interact.WasReleasedThisFrame())
                         {
@@ -196,7 +194,7 @@ public class TopDownController : MonoBehaviour
 
         if (Physics.Raycast(_interactionCastPoint.position, _interactionCastPoint.forward, out RaycastHit hit, _interactionLength))
         {
-            if (_interactionLayer == ( _interactionLayer | 1 << hit.transform.gameObject.layer ))
+            if (_interactionLayer == ( _interactionLayer | ( 1 << hit.transform.gameObject.layer ) ))
             {
                 Gizmos.color = Color.green;
             }
