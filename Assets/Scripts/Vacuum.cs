@@ -12,6 +12,10 @@ public class Vacuum : PlayerTool
     [SerializeField] private float _vacuumWidth = 5f;
     [SerializeField] private LayerMask _layersToVacuum;
 
+    [Header("Parametesr: Vacuum Grab Zone")]
+    [SerializeField] private float _vacuumGrabLength = 1f;
+    [SerializeField] private float _vacuumGrabWidth = 2f;
+
     [Header("Parameters: Throw")]
     [SerializeField] private float _throwForce = 50f;
     [SerializeField] private Transform _heldItemTransform;
@@ -28,11 +32,16 @@ public class Vacuum : PlayerTool
 
     private void Update()
     {
-        if (_myPlayerInputs.Player.Tool.WasPressedThisFrame())
+
+        if (!_equipped)
+            return;
+
+        if (_myUserInputs.Player.Tool.IsPressed())
         {
             if (_heldItem == null)
             {
                 PullObjects();
+                GrabObject();
             }
             else
             {
@@ -41,25 +50,11 @@ public class Vacuum : PlayerTool
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-
-        if (_heldItem == null)
-        {
-            if (other.CompareTag("Vacuumable"))
-            {
-                _heldItem = other.gameObject;
-                _heldItem.transform.SetPositionAndRotation(_heldItemTransform.position, _heldItemTransform.rotation);
-                _heldItem.transform.SetParent(this.transform);
-            }
-        }
-    }
-
     private void PullObjects()
     {
         Collider[] vacuumables = Physics.OverlapCapsule(
-            transform.position,
-            transform.position + ( transform.forward * _vacuumLength ),
+            transform.position + (transform.forward * _vacuumWidth),
+            transform.position + ( transform.forward * _vacuumLength ) + ( transform.forward * _vacuumWidth ),
             _vacuumWidth,
             _layersToVacuum,
             QueryTriggerInteraction.UseGlobal
@@ -71,21 +66,50 @@ public class Vacuum : PlayerTool
             {
                 //check if they're blocked first.
 
-                Rigidbody rb = collider.GetComponent<Rigidbody>();
+                if (collider.TryGetComponent(out Rigidbody rb))
+                {
+                    Vector3 pullDirection = ( transform.position - rb.position ).normalized;
+                    rb.velocity = pullDirection * _vacuumStrength; //I should be adding forces.
+                }
+            }
+        }
+    }
 
-                Vector3 pullDirection = ( transform.position - rb.position ).normalized;
-                rb.velocity = pullDirection * _vacuumStrength;
+    private void GrabObject()
+    {
+        Collider[] vacuumables = Physics.OverlapBox(
+            transform.position + (transform.forward * _vacuumGrabLength),
+            new Vector3 (_vacuumGrabWidth, _vacuumGrabWidth, _vacuumGrabLength),
+            transform.rotation,
+            _layersToVacuum,
+            QueryTriggerInteraction.UseGlobal
+        );
+
+        if (vacuumables.Length > 0)
+        {
+            if (vacuumables[0].TryGetComponent(out Rigidbody rb))
+            {
+                _heldItem = vacuumables[0].gameObject;
+
+                rb.velocity = Vector3.zero;
+                rb.isKinematic = true;
+
+                _heldItem.transform.SetPositionAndRotation(_heldItemTransform.position, _heldItemTransform.rotation);
+                _heldItem.transform.SetParent(transform);
             }
         }
     }
 
     private void ThrowHeldObject()
     {
-        Rigidbody rb = _heldItem.GetComponent<Rigidbody>();
-        rb.AddForce(transform.forward * _throwForce, ForceMode.Impulse);
+        if (_heldItem.TryGetComponent(out Rigidbody rb))
+        {
+            rb.isKinematic = false;
+            rb.AddForce(transform.forward * _throwForce, ForceMode.Impulse);
 
-        _heldItem = null;
-        //I will probably need a reference to the collider
+            _heldItem = null;
+            //I will probably need a reference to the collider
+        }
     }
 
 
@@ -93,19 +117,26 @@ public class Vacuum : PlayerTool
     {
         if (_debug)
         {
-            Gizmos.matrix = transform.localToWorldMatrix;
+            if (_equipped)
+            {
+                Gizmos.matrix = transform.localToWorldMatrix;
 
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(Vector3.zero, _vacuumWidth);
-            Gizmos.DrawWireSphere(Vector3.forward * _vacuumLength, _vacuumWidth);
+                //Vacuum gizmos
+                Gizmos.color = Color.blue;
+                Gizmos.DrawWireSphere(Vector3.forward * _vacuumWidth, _vacuumWidth);
+                Gizmos.DrawWireSphere(( Vector3.forward * _vacuumLength ) + ( Vector3.forward * _vacuumWidth ), _vacuumWidth);
 
-            var cubeSize = new Vector3(
-                x: _vacuumWidth * 2,
-                y: _vacuumWidth * 2,
-                z: _vacuumLength
-            );
+                var cubeSize = new Vector3(
+                    x: _vacuumWidth * 2,
+                    y: _vacuumWidth * 2,
+                    z: _vacuumLength
+                );
 
-            Gizmos.DrawWireCube(Vector3.forward * _vacuumLength / 2, cubeSize);
+                Gizmos.DrawWireCube(( Vector3.forward * _vacuumLength / 2 ) + ( Vector3.forward * _vacuumWidth ), cubeSize);
+
+                //Grab Gizmos
+                Gizmos.DrawCube(Vector3.forward * _vacuumGrabLength, new Vector3(_vacuumGrabWidth, _vacuumGrabWidth, _vacuumGrabLength));
+            }
         }
     }
 }

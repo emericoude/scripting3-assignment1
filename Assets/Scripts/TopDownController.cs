@@ -18,7 +18,6 @@ public class TopDownController : MonoBehaviour
     [SerializeField] private Collider _mainCollider;
     [Tooltip("The current move component. A move component handles how the unit moves, while the controller focuses on sending information (inputs) to it.")]
     [SerializeField] private MoveComponent _moveComponent;
-    public PlayerTool EquippedTool { get { return _equippedTool; } set { _equippedTool = value; } }
     private PlayerInputs _inputs;
     public PlayerInputs Inputs { get { return _inputs; } }
 
@@ -34,10 +33,11 @@ public class TopDownController : MonoBehaviour
     [SerializeField] private Transform _interactionCastPoint;
     [Tooltip("The maximum length of the interaction raycast.")]
     [SerializeField] private float _interactionLength = 1f;
+    [SerializeField] private float _interactionRadius = 0.5f;
     [Tooltip("The position at which items are held.")]
     [SerializeField] private Transform _heldItemPosition;
-    [SerializeField] private PlayerTool _equippedTool;
-    private readonly GameObject _heldItem;
+    public Transform HeldItemPosition { get { return _heldItemPosition; } }
+    public PlayerTool HeldTool { get; set; }
     private Interactable _currentInteractable;
 
     [Header("Debug")]
@@ -56,6 +56,11 @@ public class TopDownController : MonoBehaviour
 
         _inputs = new PlayerInputs();
         _inputs.Enable();
+    }
+
+    private void Update()
+    {
+        Interact();
     }
 
     private void FixedUpdate()
@@ -105,17 +110,17 @@ public class TopDownController : MonoBehaviour
     {
         Vector2 playerPositionToScreen = _mainCamera.WorldToScreenPoint(transform.position);
         Vector2 aimDirection = ( _inputs.Player.Aim.ReadValue<Vector2>() - playerPositionToScreen ).normalized;
-        return ( Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg ) - _mainCamera.transform.eulerAngles.y;
+        return ( Mathf.Atan2(aimDirection.x, aimDirection.y) * Mathf.Rad2Deg ) + _mainCamera.transform.eulerAngles.y;
     }
 
     #endregion
     #region Interact
 
     ///<summary>Manages the interaction functionality.</summary>
-    private void Interaction()
+    private void Interact()
     {
         //Send a raycast forward
-        if (Physics.Raycast(_interactionCastPoint.position, _interactionCastPoint.forward, out RaycastHit hit, _interactionLength))
+        if (Physics.SphereCast(_interactionCastPoint.position, _interactionRadius,_interactionCastPoint.forward, out RaycastHit hit, _interactionLength))
         {
 
             //Check if the layer is the interaction layer
@@ -123,7 +128,7 @@ public class TopDownController : MonoBehaviour
             {
 
                 //Try to get the interactable component
-                if (hit.transform.TryGetComponent<Interactable>(out Interactable interactable))
+                if (hit.transform.TryGetComponent(out Interactable interactable))
                 {
                     if (interactable != _currentInteractable)
                     {
@@ -217,6 +222,21 @@ public class TopDownController : MonoBehaviour
         if (_debug)
         {
             _moveComponent.IsGroundedGizmos(_mainCollider, true, true, true);
+
+            Gizmos.matrix = _interactionCastPoint.localToWorldMatrix;
+
+            //INteraction gizmos
+            Gizmos.color = Color.blue;
+            Gizmos.DrawWireSphere(Vector3.zero, _interactionRadius);
+            Gizmos.DrawWireSphere(( Vector3.forward * _interactionLength ) + ( Vector3.forward * _interactionRadius ), _interactionRadius);
+
+            var cubeSize = new Vector3(
+                x: _interactionRadius * 2,
+                y: _interactionRadius * 2,
+                z: _interactionLength
+            );
+
+            Gizmos.DrawWireCube(( Vector3.forward * _interactionLength / 2 ) + ( Vector3.forward * _interactionRadius ), cubeSize);
         }
     }
 
