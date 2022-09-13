@@ -19,7 +19,9 @@ public class Vacuum : PlayerTool
     [Header("Parameters: Throw")]
     [SerializeField] private float _throwForce = 50f;
     [SerializeField] private Transform _heldItemTransform;
+    [SerializeField] private float _pullCooldown = 1f;
     private GameObject _heldItem;
+    private bool _pullOnCooldown = false;
 
     [Header("Debug")]
     [SerializeField] private bool _debug = false;
@@ -40,8 +42,11 @@ public class Vacuum : PlayerTool
         {
             if (_heldItem == null)
             {
-                PullObjects();
-                GrabObject();
+                if (!_pullOnCooldown)
+                {
+                    PullObjects();
+                    GrabObject();
+                }
             }
             else
             {
@@ -53,7 +58,7 @@ public class Vacuum : PlayerTool
     private void PullObjects()
     {
         Collider[] vacuumables = Physics.OverlapCapsule(
-            transform.position + (transform.forward * _vacuumWidth),
+            transform.position + ( transform.forward * _vacuumWidth ),
             transform.position + ( transform.forward * _vacuumLength ) + ( transform.forward * _vacuumWidth ),
             _vacuumWidth,
             _layersToVacuum,
@@ -78,8 +83,8 @@ public class Vacuum : PlayerTool
     private void GrabObject()
     {
         Collider[] vacuumables = Physics.OverlapBox(
-            transform.position + (transform.forward * _vacuumGrabLength),
-            new Vector3 (_vacuumGrabWidth, _vacuumGrabWidth, _vacuumGrabLength),
+            transform.position + ( transform.forward * _vacuumGrabLength ),
+            new Vector3(_vacuumGrabWidth, _vacuumGrabWidth, _vacuumGrabLength),
             transform.rotation,
             _layersToVacuum,
             QueryTriggerInteraction.UseGlobal
@@ -109,7 +114,16 @@ public class Vacuum : PlayerTool
 
             _heldItem = null;
             //I will probably need a reference to the collider
+
+            StartCoroutine(PullCooldown());
         }
+    }
+
+    private IEnumerator PullCooldown()
+    {
+        _pullOnCooldown = true;
+        yield return new WaitForSeconds(_pullCooldown);
+        _pullOnCooldown = false;
     }
 
 

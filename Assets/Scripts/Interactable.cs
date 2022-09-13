@@ -38,7 +38,7 @@ public abstract class Interactable : MonoBehaviour
 
     ///<summary>Handles what should be displayed next to the player's cursor when the player is looking at the interactable.</summary>
     ///<remarks>This is not called while the player is interacting with the object.</remarks>
-    public virtual void ShowTooltips()
+    public virtual void ShowTooltips(TopDownController user)
     {
         if (IsInteractable())
         {
@@ -48,7 +48,7 @@ public abstract class Interactable : MonoBehaviour
                 hold = "hold ";
             }
 
-            //UIManager.Instance.RevealInteractionText($"{hold}[{_player.GetPlayerControls().Player.Interact.bindings[0].ToDisplayString()}] {_hoverText}");
+            UIManager.Instance.SetInteractionText($"{hold}[{user.Inputs.Player.Interact.bindings[0].ToDisplayString()}] {_hoverText}");
         }
     }
 
@@ -68,7 +68,7 @@ public abstract class Interactable : MonoBehaviour
             _currentProgress += Time.deltaTime;
             float _currentProgressClamped = Mathf.InverseLerp(0f, _holdTimeInSeconds, _currentProgress);
 
-            //Events.OnHoldProgress?.Invoke(_currentProgressClamped);
+            UIManager.Instance.UpdateInteractionProgressChange(_currentProgressClamped);
 
             if (_currentProgress >= _holdTimeInSeconds)
             {
@@ -78,10 +78,10 @@ public abstract class Interactable : MonoBehaviour
                     //AudioManager.Instance.PlayEffect(_useSound[UnityEngine.Random.Range(0, _useSound.Length)]);
                 }
 
-                //UIManager.Instance.HideInteractionText();
+                UIManager.Instance.SetInteractionText("");
 
                 _currentProgressClamped = 0;
-                //Events.OnHoldProgress?.Invoke(_currentProgressClamped);
+                UIManager.Instance.UpdateInteractionProgressChange(_currentProgressClamped);
             }
         }
     }
@@ -92,7 +92,7 @@ public abstract class Interactable : MonoBehaviour
         if (_currentProgress > 0)
         {
             _currentProgress = 0;
-            //Events.OnHoldProgress?.Invoke(_currentProgress);
+            UIManager.Instance.UpdateInteractionProgressChange(_currentProgress);
 
             if (( _progressSound.Length > 0 ) && _audioSource.isPlaying)
             {

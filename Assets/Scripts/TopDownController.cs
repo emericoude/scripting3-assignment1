@@ -120,7 +120,7 @@ public class TopDownController : MonoBehaviour
     private void Interact()
     {
         //Send a raycast forward
-        if (Physics.SphereCast(_interactionCastPoint.position, _interactionRadius,_interactionCastPoint.forward, out RaycastHit hit, _interactionLength))
+        if (Physics.SphereCast(_interactionCastPoint.position, _interactionRadius, _interactionCastPoint.forward, out RaycastHit hit, _interactionLength))
         {
 
             //Check if the layer is the interaction layer
@@ -149,7 +149,7 @@ public class TopDownController : MonoBehaviour
                         }
                         else
                         {
-                            interactable.ShowTooltips();
+                            interactable.ShowTooltips(this);
                         }
                     }
                     else
@@ -160,7 +160,7 @@ public class TopDownController : MonoBehaviour
                         }
                         else
                         {
-                            interactable.ShowTooltips();
+                            interactable.ShowTooltips(this);
                         }
                     }
                 }

@@ -1,18 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonMonobehaviour<GameManager>
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    [SerializeField] private int _currentPoints;
+    public int CurrentPoints { get { return _currentPoints; } set { _currentPoints = value; } }
 }
