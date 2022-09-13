@@ -166,7 +166,7 @@ public class TopDownController : MonoBehaviour
                 }
                 else
                 { //if it doesn't have an interactable component
-                    Debug.LogWarning($"{hit.transform.gameObject}: This object is on the interaction layer but it does not have an Interactable component.");
+                    //Debug.LogWarning($"{hit.transform.gameObject}: This object is on the interaction layer but it does not have an Interactable component.");
                     ResetCurrentInteractable();
                 }
             }
@@ -183,6 +183,8 @@ public class TopDownController : MonoBehaviour
 
     private void ResetCurrentInteractable()
     {
+        UIManager.Instance.SetInteractionText("");
+
         if (_currentInteractable != null)
         {
             _currentInteractable.Reset();

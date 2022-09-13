@@ -14,28 +14,36 @@ public abstract class SingletonMonobehaviour<T> : MonoBehaviour where T : MonoBe
     [Header("Singleton Parameters")]
     [Tooltip("If true, the singleton will stay alive accross scenes.")]
     [SerializeField] private bool _persistent = true;
-    [Tooltip("If true, destroy self if there is already an instance of this singleton.")]
-    [SerializeField] private bool _destroyIfExisting = true;
 
     private static T _instance;
-    public static T Instance
-    {
-        get
+    public static T Instance 
+    { 
+        get 
         {
-            //return the instance. If null, create one.
-            return _instance ??= new GameObject($"Singleton: {typeof(T)}").AddComponent<T>();
-        }
+            if (_instance != null)
+                return _instance;
+
+            var instances = FindObjectsOfType<T>();
+            var count = instances.Length;
+            if (count > 0)
+            {
+                if (count == 1)
+                    return _instance = instances[0];
+
+                for (var i = 1; i < instances.Length; i++)
+                    Destroy(instances[i]);
+
+                return _instance = instances[0];
+            }
+
+            return _instance = new GameObject($"Singleton: {typeof(T)}").AddComponent<T>();
+        } 
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
-        if (_destroyIfExisting)
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-            }
-        }
+        if (_instance != null && _instance != this)
+            Destroy(this.gameObject);
 
         if (_persistent)
         {
