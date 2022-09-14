@@ -111,6 +111,8 @@ public class Vacuum : PlayerTool
     {
         if (_heldItem.TryGetComponent(out Rigidbody rb))
         {
+            _heldItem.transform.SetParent(null);
+
             rb.isKinematic = false;
             rb.AddForce(transform.forward * _throwForce, ForceMode.Impulse);
 
