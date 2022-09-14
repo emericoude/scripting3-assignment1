@@ -30,8 +30,10 @@ public class UIManager : SingletonMonobehaviour<UIManager>
     [SerializeField] private TextMeshProUGUI _interactTMP;
     [SerializeField] private Image _interactionProgressImage;
 
-    private void Start()
+    protected override void Awake()
     {
+        base.Awake();
+
         InitNavigationButtons();
         InitInteractionUGUI();
         InitPointsUGUI();
@@ -44,7 +46,6 @@ public class UIManager : SingletonMonobehaviour<UIManager>
         UnityAction loadLevelOne = () =>
         {
             SceneLoader.LoadScene(SceneLoader.LevelOneSceneName);
-            GameManager.Instance.RunTimer = 0;
             GameManager.Instance.TimerEnabled = true;
             EnableInGameUGUI();
         };
@@ -59,12 +60,17 @@ public class UIManager : SingletonMonobehaviour<UIManager>
 
     public void InitEndScene()
     {
-        GameManager.Instance.TimerEnabled = false;
-
         _endPointsUGUI.text = GameManager.Instance.CurrentPoints.ToString();
         _timeToFinishUGUI.text = $"Time: {GameManager.Instance.RunTimer}s";
-        _endDeathUGUI.text = "temp";
+        _endDeathUGUI.text = $"Deaths: {GameManager.Instance.DeathCounter}";
+
         EnableEndUGUI();
+
+        GameManager.Instance.TimerEnabled = false;
+        GameManager.Instance.RunTimer = 0;
+        GameManager.Instance.DeathCounter = 0;
+        GameManager.Instance.CurrentPoints = 0;
+
     }
 
     public void InitMenuScene()

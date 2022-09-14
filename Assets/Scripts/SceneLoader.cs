@@ -13,6 +13,10 @@ public static class SceneLoader
     {
         SceneManager.LoadScene(sceneName);
     }
+    public static void ReloadActiveScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
     public static void QuitGame()
     {

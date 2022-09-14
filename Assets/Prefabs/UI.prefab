@@ -536,7 +536,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5106012290944456897
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1601,11 +1601,7 @@ MonoBehaviour:
   - {fileID: 5106012291715048929}
   _pointsUGUI: {fileID: 5106012290619189710}
   _interactTMP: {fileID: 5106012291349457864}
-  _reticleContainer: {fileID: 5106012291785495751}
   _interactionProgressImage: {fileID: 5106012291422175520}
-  _maxReticleScale: {x: 17, y: 0.45, z: 1}
-  _reticleScaleResetSpeed: 1
-  _reticleScaleSpeed: 0.1
 --- !u!1 &5106012291715048931
 GameObject:
   m_ObjectHideFlags: 0

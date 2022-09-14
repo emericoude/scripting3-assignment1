@@ -48,10 +48,12 @@ public class Vacuum : PlayerTool
                     GrabObject();
                 }
             }
-            else
-            {
+        }
+
+        if (_myUserInputs.Player.Tool.WasPerformedThisFrame())
+        {
+            if (_heldItem != null)
                 ThrowHeldObject();
-            }
         }
     }
 

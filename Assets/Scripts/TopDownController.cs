@@ -7,7 +7,7 @@ using UnityEngine;
 /// Handles the player character controls.
 /// </summary>
 [RequireComponent(typeof(Rigidbody), typeof(Collider))]
-public class TopDownController : MonoBehaviour
+public class TopDownController : Unit
 {
     #region PARAMETERS
 
@@ -46,8 +46,10 @@ public class TopDownController : MonoBehaviour
     #endregion
     #region Awake/Start | Update/FixedUpdate
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+
         _mainCamera ??= Camera.main;
 
         _rb ??= GetComponent<Rigidbody>();

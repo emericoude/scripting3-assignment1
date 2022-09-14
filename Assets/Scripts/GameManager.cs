@@ -21,9 +21,18 @@ public class GameManager : SingletonMonobehaviour<GameManager>
     private bool _timerEnabled = false;
     public bool TimerEnabled { get { return _timerEnabled; } set { _timerEnabled = value; } }
 
+    private int _deathCounter;
+    public int DeathCounter { get { return _deathCounter; } set { _deathCounter = value; } }
+
     private void Update()
     {
         if (_timerEnabled)
             _runTimer += Time.deltaTime;
+    }
+
+    public void PlayerDeath()
+    {
+        DeathCounter++;
+        SceneLoader.ReloadActiveScene();
     }
 }

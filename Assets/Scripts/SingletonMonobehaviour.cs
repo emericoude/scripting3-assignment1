@@ -9,7 +9,7 @@ using UnityEngine;
 /// Multi-purpose singleton implementation.
 /// </summary>
 /// <typeparam name="T">The implenting class. Must inherit monobehaviour.</typeparam>
-public abstract class SingletonMonobehaviour<T> : MonoBehaviour where T : MonoBehaviour
+public abstract class SingletonMonobehaviour<T> : MonoBehaviour where T : SingletonMonobehaviour<T>
 {
     [Header("Singleton Parameters")]
     [Tooltip("If true, the singleton will stay alive accross scenes.")]
@@ -23,27 +23,19 @@ public abstract class SingletonMonobehaviour<T> : MonoBehaviour where T : MonoBe
             if (_instance != null)
                 return _instance;
 
-            var instances = FindObjectsOfType<T>();
-            var count = instances.Length;
-            if (count > 0)
-            {
-                if (count == 1)
-                    return _instance = instances[0];
-
-                for (var i = 1; i < instances.Length; i++)
-                    Destroy(instances[i]);
-
-                return _instance = instances[0];
-            }
-
-            return _instance = new GameObject($"Singleton: {typeof(T)}").AddComponent<T>();
+            return null;
         } 
     }
 
     protected virtual void Awake()
     {
         if (_instance != null && _instance != this)
-            Destroy(this.gameObject);
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        _instance = (T)this;
 
         if (_persistent)
         {
